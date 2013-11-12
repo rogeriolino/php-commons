@@ -1,0 +1,25 @@
+{
+    "name": "rogeriolino/commons",
+    "type": "library",
+    "description": "My PHP commons code",
+    "keywords": ["php", "commons"],
+    "homepage": "http://www.rogeriolino.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rogério Alencar Lino Filho", 
+            "email": "rogeriolino@gmail.com",
+            "homepage": "http://rogeriolino.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "novosga/core": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "RogerioLino\\": "src/"
+        }
+    }
+}
