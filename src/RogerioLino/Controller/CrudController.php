@@ -18,6 +18,7 @@ abstract class CrudController extends SlimController {
     protected $name;
     protected $entityName;
     protected $maxResults = 20;
+    protected $readonly = false;
     
     public function __construct(Slim $app, $name, $entityName) {
         parent::__construct($app);
@@ -70,26 +71,36 @@ abstract class CrudController extends SlimController {
         
         $this->preEdit($model);
         
-        $form = new EntityValidator($model);
-        if ($this->app()->request()->isPost()) {
-            $form->hydrate($this->app()->request()->post('data'));
-            try {
-                if ($form->isValid()) {
-                    $this->preSave($model);
-                    if ($model->getId() > 0) {
-                        $this->em()->merge($model);
-                        $message = 'Registro atualizado com sucesso';
-                    } else {
-                        $this->em()->persist($model);
-                        $message = 'Registro adicionado com sucesso';
+        if (!$this->readonly) {
+            $form = new EntityValidator($model);
+            if ($this->app()->request()->isPost()) {
+                $form->hydrate($this->app()->request()->post('data'));
+                try {
+                    if ($form->isValid()) {
+                        $this->preSave($model);
+                        $redirectUrl = $_SERVER['HTTP_REFERER'];
+                        if ($model->getId() > 0) {
+                            $this->em()->merge($model);
+                            $message = 'Registro atualizado com sucesso';
+                        } else {
+                            $this->em()->persist($model);
+                            $message = 'Registro adicionado com sucesso';
+                            if ($redirectUrl[strlen($redirectUrl) - 1] !== '/') {
+                                $redirectUrl .= '/';
+                            }
+                        }
+                        $this->em()->flush();
+                        $this->postSave($model);
+                        $this->app()->flash('success', $message);
+                        if ($redirectUrl[strlen($redirectUrl) - 1] === '/') {
+                            $redirectUrl .= $model->getId();
+                        }
+                        $this->app()->redirect($redirectUrl);
                     }
-                    $this->em()->flush();
-                    $this->postSave($model);
-                    $this->app()->view()->set('success', $message);
+                } catch (Exception $e) {
+                    //echo $e->getFile() . ':' . $e->getLine();
+                    $this->app()->view()->set('error', $e->getMessage());
                 }
-            } catch (Exception $e) {
-//                echo $e->getFile() . ':' . $e->getLine();
-                $this->app()->view()->set('error', $e->getMessage());
             }
         }
         $this->postEdit($model);
