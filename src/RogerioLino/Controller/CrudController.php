@@ -20,10 +20,11 @@ abstract class CrudController extends SlimController {
     protected $maxResults = 20;
     protected $readonly = false;
     
-    public function __construct(Slim $app, $name, $entityName) {
+    public function __construct(Slim $app, $entityName) {
         parent::__construct($app);
-        $this->name = $name;
         $this->entityName = $entityName;
+        // resolving controller name (class prefix)
+        $this->name = strtolower(str_replace('Controller', '', @end(@explode('\\', get_class($this)))));
     }
     
     /**
@@ -52,7 +53,7 @@ abstract class CrudController extends SlimController {
     }
     
     protected function searchQuery($searchValue, $maxResults, $first = 0) {
-        $dql = "SELECT e FROM {$this->entityName}";
+        $dql = "SELECT e FROM {$this->entityName} e";
         $query = $this->em()->createQuery($dql)
                     ->setFirstResult($first)
                     ->setMaxResults($maxResults);
