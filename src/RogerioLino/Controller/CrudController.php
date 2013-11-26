@@ -20,11 +20,14 @@ abstract class CrudController extends SlimController {
     protected $maxResults = 20;
     protected $readonly = false;
     
-    public function __construct(Slim $app, $entityName) {
+    public function __construct(Slim $app, $entityName, $title = "", $subtitle = "") {
         parent::__construct($app);
         $this->entityName = $entityName;
         // resolving controller name (class prefix)
         $this->name = strtolower(str_replace('Controller', '', @end(@explode('\\', get_class($this)))));
+        
+        $this->app()->view()->set('title', $title);
+        $this->app()->view()->set('subtitle', $subtitle);
     }
     
     /**
