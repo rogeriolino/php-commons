@@ -75,9 +75,10 @@ abstract class CrudController extends SlimController {
         
         $this->preEdit($model);
         
-        if (!$this->readonly) {
-            $form = new EntityValidator($model);
-            if ($this->app()->request()->isPost()) {
+        // form submit
+        if ($this->app()->request()->isPost()) {
+            if (!$this->readonly) {
+                $form = new EntityValidator($model);
                 $form->hydrate($this->app()->request()->post('data'));
                 try {
                     if ($form->isValid()) {
@@ -111,6 +112,7 @@ abstract class CrudController extends SlimController {
         
         $this->app()->view()->set('controllerName', $this->name);
         $this->app()->view()->set('model', $model);
+        $this->app()->view()->set('readonly', $this->readonly);
     }
     
     protected function postIndex() {}
