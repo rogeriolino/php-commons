@@ -51,8 +51,12 @@ class AuthMiddleware extends \Slim\Middleware {
         return isset($_SESSION[self::SESS_USER]) && !empty($_SESSION[self::SESS_USER]);
     }
     
+    public function hasAccess() {
+        return true;
+    }
+    
     public function call() {
-        if (!$this->isLoginPage() && !$this->isLogoutPage() && !$this->isLogged()) {
+        if (!$this->isLoginPage() && !$this->isLogoutPage() && (!$this->isLogged() || !$this->hasAccess())) {
             $this->app->redirect($this->app->request()->getRootUri() . $this->loginPage);
         } else {
             if ($this->isLogged()) {
