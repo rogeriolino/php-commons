@@ -37,7 +37,7 @@ class BasicValidator implements Validator {
      */
     public function isValid() {
         foreach ($this->requireds as $req) {
-            if (!isset($this->data[$req]) || empty($this->data[$req])) {
+            if (!isset($this->data[$req]) || trim($this->data[$req]) == '') {
                 throw new \Exception(sprintf('Campo obrigatório: %s', $req));
             }
         }
