@@ -103,7 +103,8 @@ abstract class CrudController extends SlimController {
                         $this->app()->redirect($redirectUrl);
                     }
                 } catch (Exception $e) {
-                    //echo $e->getFile() . ':' . $e->getLine();
+//                    echo $e->getTraceAsString() . '<br><br>';
+//                    echo $e->getFile() . ':' . $e->getLine(); exit();
                     $this->app()->view()->set('error', $e->getMessage());
                 }
             }
