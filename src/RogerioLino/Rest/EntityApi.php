@@ -65,13 +65,17 @@ abstract class EntityApi {
         return $rs;
     }
     
+    public function find($id) {
+        return $this->em->find($this->entityName, (int) $id);
+    }
+    
     public function put($id, $data) {
         try {
-            $entity = $this->em->find($this->entityName, (int) $id);
+            $entity = $this->find($id);
             $this->hydrate($entity, $data);
             $this->em->merge($entity);
             $this->em->flush();
-            return $entity->getId();
+            return $this->get($id);
         } catch (\Exception $e) {
             return array("error" => $e->getMessage());
         }
@@ -83,7 +87,7 @@ abstract class EntityApi {
             $this->hydrate($entity, $data);
             $this->em->persist($entity);
             $this->em->flush();
-            return $entity->getId();
+            return $this->get($id);
         } catch (\Exception $e) {
             return array("error" => $e->getMessage());
         }
