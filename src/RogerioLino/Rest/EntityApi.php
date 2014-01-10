@@ -75,6 +75,7 @@ abstract class EntityApi {
             $this->hydrate($entity, $data);
             $this->em->merge($entity);
             $this->em->flush();
+            $this->postMerge($entity);
             return $this->get($id);
         } catch (\Exception $e) {
             return array("error" => $e->getMessage());
@@ -87,11 +88,15 @@ abstract class EntityApi {
             $this->hydrate($entity, $data);
             $this->em->persist($entity);
             $this->em->flush();
-            return $this->get($id);
+            $this->postPersist($entity);
+            return $this->get($entity->getId());
         } catch (\Exception $e) {
             return array("error" => $e->getMessage());
         }
     }
+    
+    public function postMerge($entity) {}
+    public function postPersist($entity) {}
     
     public function json($rs) {
         return json_encode($rs);
