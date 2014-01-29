@@ -97,9 +97,22 @@ abstract class EntityApi {
         }
     }
     
+    public function delete($id) {
+        try {
+            $entity = $this->find($id);
+            $this->em->remove($entity);
+            $this->em->flush();
+            $this->postDelete($entity);
+            return array("success" => true);
+        } catch (\Exception $e) {
+            return array("error" => $e->getMessage());
+        }
+    }
+    
     public function postMerge($entity, $data) {}
     public function postPersist($entity, $data) {}
     public function postSave($entity, $data) {}
+    public function postDelete($entity) {}
     
     public function json($rs) {
         return json_encode($rs);
