@@ -73,14 +73,13 @@ abstract class CrudController extends SlimController {
             $model = new $this->entityName;
         }
         
-        $this->preEdit($model);
-        
-        // form submit
-        if ($this->app()->request()->isPost()) {
-            if (!$this->readonly) {
-                $form = new EntityValidator($model);
-                $form->hydrate($this->app()->request()->post('data'));
-                try {
+        try {
+            $this->preEdit($model);
+            // form submit
+            if ($this->app()->request()->isPost()) {
+                if (!$this->readonly) {
+                    $form = new EntityValidator($model);
+                    $form->hydrate($this->app()->request()->post('data'));
                     if ($form->isValid()) {
                         $this->preSave($model);
                         $redirectUrl = $_SERVER['HTTP_REFERER'];
@@ -102,12 +101,12 @@ abstract class CrudController extends SlimController {
                         }
                         $this->app()->redirect($redirectUrl);
                     }
-                } catch (Exception $e) {
-//                    echo $e->getTraceAsString() . '<br><br>';
-//                    echo $e->getFile() . ':' . $e->getLine(); exit();
-                    $this->app()->view()->set('error', $e->getMessage());
                 }
             }
+        } catch (Exception $e) {
+//                    echo $e->getTraceAsString() . '<br><br>';
+//                    echo $e->getFile() . ':' . $e->getLine(); exit();
+            $this->app()->view()->set('error', $e->getMessage());
         }
         $this->postEdit($model);
         
