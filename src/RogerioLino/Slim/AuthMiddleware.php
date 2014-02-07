@@ -30,7 +30,7 @@ class AuthMiddleware extends \Slim\Middleware {
     
     public function username($username = null) {
         if (!$username) {
-            return $_SESSION[self::SESS_USER];
+            return $this->isLogged() ? $_SESSION[self::SESS_USER] : null;
         }
         $_SESSION[self::SESS_USER] = $username;
     }
@@ -56,14 +56,20 @@ class AuthMiddleware extends \Slim\Middleware {
     }
     
     public function call() {
-        if (!$this->isLoginPage() && !$this->isLogoutPage() && (!$this->isLogged() || !$this->hasAccess())) {
-            $this->app->redirect($this->app->request()->getRootUri() . $this->loginPage);
-        } else {
-            if ($this->isLogged()) {
-                $this->app->view()->set($this->viewVar, $this->username());
+        if (!$this->isLoginPage() && !$this->isLogoutPage()) {
+            if (!$this->isLogged()) {
+                $this->app->redirect($this->app->request()->getRootUri() . $this->loginPage);
+                return;
+            } 
+            if (!$this->isHomePage() && !$this->hasAccess()) {
+                $this->app->redirect($this->app->request()->getRootUri() . $this->homePage);
+                return;
             }
-            $this->next->call();
         }
+        if ($this->isLogged()) {
+            $this->app->view()->set($this->viewVar, $this->username());
+        }
+        $this->next->call();
     }
     
     public function getLoginPage() {
