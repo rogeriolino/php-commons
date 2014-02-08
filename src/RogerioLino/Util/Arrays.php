@@ -1,6 +1,8 @@
 <?php
 namespace RogerioLino\Util;
 
+use RogerioLino\Model\ArraySerializable;
+
 /**
  * 
  * @author Rogerio Lino <rogeriolino@gmail.com>
@@ -89,6 +91,9 @@ class Arrays {
             return $arr;
         }
         if (is_object($value)) {
+            if ($value instanceof ArraySerializable) {
+                return $value->toArray();
+            }
             if (sizeof($items)) {
                 if (sizeof($items) > 1) {
                     $arr = array();

@@ -52,7 +52,7 @@ abstract class CrudController extends SlimController {
         $this->app()->view()->set('total', $total);
         $this->app()->view()->set('page', $page);
         $this->app()->view()->set('maxResults', $this->maxResults);
-        $this->app()->view()->set('pages', ceil($total / $this->maxResults));
+        $this->app()->view()->set('pages', floor($total / $this->maxResults));
     }
     
     protected function searchQuery($searchValue, $maxResults, $first = 0) {
@@ -81,6 +81,7 @@ abstract class CrudController extends SlimController {
                     $form = new EntityValidator($model);
                     $form->hydrate($this->app()->request()->post('data'));
                     if ($form->isValid()) {
+                        $this->em()->beginTransaction();
                         $this->preSave($model);
                         $redirectUrl = $_SERVER['HTTP_REFERER'];
                         if ($model->getId() > 0) {
@@ -93,19 +94,28 @@ abstract class CrudController extends SlimController {
                                 $redirectUrl .= '/';
                             }
                         }
-                        $this->em()->flush();
                         $this->postSave($model);
+                        $this->em()->commit();
+                        $this->em()->flush();
                         $this->app()->flash('success', $message);
                         if ($redirectUrl[strlen($redirectUrl) - 1] === '/') {
                             $redirectUrl .= $model->getId();
                         }
-                        $this->app()->redirect($redirectUrl);
+//                        $this->app()->redirect($redirectUrl);
+                        header("Location: $redirectUrl");
+                        exit();
                     }
                 }
             }
         } catch (Exception $e) {
-//                    echo $e->getTraceAsString() . '<br><br>';
-//                    echo $e->getFile() . ':' . $e->getLine(); exit();
+            try {
+                $this->em()->rollback();
+            } catch (Exception $ex) {
+            }
+//            echo "<p><strong>{$e->getMessage()} - {$e->getCode()}</strong></p>";
+//            echo "<div>{$e->getTraceAsString()}</div>";
+//            echo "<p><strong>{$e->getFile()}:{$e->getLine()}</strong></p>";
+//            exit();
             $this->app()->view()->set('error', $e->getMessage());
         }
         $this->postEdit($model);
