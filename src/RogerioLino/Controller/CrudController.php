@@ -94,9 +94,9 @@ abstract class CrudController extends SlimController {
                                 $redirectUrl .= '/';
                             }
                         }
-                        $this->postSave($model);
                         $this->em()->commit();
                         $this->em()->flush();
+                        $this->postSave($model);
                         $this->app()->flash('success', $message);
                         if ($redirectUrl[strlen($redirectUrl) - 1] === '/') {
                             $redirectUrl .= $model->getId();
