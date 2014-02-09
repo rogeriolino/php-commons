@@ -101,9 +101,9 @@ abstract class CrudController extends SlimController {
                         if ($redirectUrl[strlen($redirectUrl) - 1] === '/') {
                             $redirectUrl .= $model->getId();
                         }
-//                        $this->app()->redirect($redirectUrl);
-                        header("Location: $redirectUrl");
-                        exit();
+                        $this->app()->redirect($redirectUrl);
+//                        header("Location: $redirectUrl");
+//                        exit();
                     }
                 }
             }
