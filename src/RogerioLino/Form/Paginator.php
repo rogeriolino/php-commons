@@ -1,47 +1,133 @@
 <?php
 namespace RogerioLino\Form;
 
+use Doctrine\ORM\Query;
+use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
+
 /**
  * BasicValidator
  *
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
-class BasicValidator implements Validator {
-    
-    private $requireds = array();
-    private $data = array();
+class Paginator {
     
     /**
-     * Set requireds values
-     * @param array $requireds
-     * @return \RogerioLino\Form\BasicValidator
+     * @var \Doctrine\ORM\Query
      */
-    public function requireds(array $requireds) {
-        $this->requireds = $requireds;
+    protected $query;
+    /**
+     * @var integer
+     */
+    protected $maxResults = 20;
+    /**
+     * @var integer
+     */
+    protected $range = 10;
+    /**
+     * @var integer
+     */
+    protected $totalPages = 0;
+    /**
+     * @var integer
+     */
+    protected $totalItems = 0;
+    /**
+     * @var integer
+     */
+    protected $startPage = 0;
+    /**
+     * @var integer
+     */
+    protected $currentPage = 0;
+    /**
+     * @var integer
+     */
+    protected $endPage = 0;
+    /**
+     * @var integer
+     */
+    protected $paginator;
+    
+    /**
+     * @param \Doctrine\ORM\Query $query
+     * @param integer $maxResults
+     * @return \RogerioLino\Form\Paginator
+     */
+    public static function create(Query $query, $maxResults) {
+        $instance = new Paginator();
+        return $instance->query($query)->maxResults((int) $maxResults);
+    }
+
+    /**
+     * @param \Doctrine\ORM\Query $query
+     * @return \RogerioLino\Form\Paginator
+     */
+    public function query(Query $query) {
+        $this->query = $query;
         return $this;
     }
     
     /**
-     * Set the data to be validated
-     * @param array $data
-     * @return \RogerioLino\Form\BasicValidator
+     * @param integer $maxResults
+     * @return \RogerioLino\Form\Paginator
      */
-    public function data(array $data) {
-        $this->data = $data;
+    public function maxResults($maxResults) {
+        if ($maxResults > 0) {
+            $this->maxResults = $maxResults;
+        }
+        return $this;
+    }
+    
+    /**
+     * @param integer $range
+     * @return \RogerioLino\Form\Paginator
+     */
+    public function range($range) {
+        $this->range = $range;
         return $this;
     }
 
     /**
-     * @throws Exception
-     * @return boolean
+     * @param integer $currentPage [optional]
+     * @return \RogerioLino\Form\Paginator
      */
-    public function isValid() {
-        foreach ($this->requireds as $req) {
-            if (!isset($this->data[$req]) || trim($this->data[$req]) == '') {
-                throw new \Exception(sprintf('Campo obrigatório: %s', $req));
-            }
+    public function paginate($currentPage = 0) {
+        $this->query
+                ->setFirstResult($currentPage * $this->maxResults)
+                ->setMaxResults($this->maxResults)
+        ;
+        $this->currentPage = $currentPage;
+        $this->paginator = new DoctrinePaginator($this->query, true);
+        $this->totalItems = count($this->paginator);
+        $this->totalPages = floor($this->totalItems / $this->maxResults);
+        
+        $min = floor($currentPage - $this->range / 2);
+        $max = floor($currentPage + $this->range / 2);
+        if ($min < 0) {
+            $max += abs($min);
         }
-        return true;
+        if ($max > $this->totalPages) {
+            $min -= $max - $this->totalPages;
+        }
+        $this->startPage = max(array(0, $min));
+        $this->endPage = min(array($this->totalPages, $max));
+        return $this;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray() {
+        return array(
+            'items' => $this->paginator,
+            'totalItems' => $this->totalItems,
+            'page' => $this->currentPage,
+            'maxResults' => $this->maxResults,
+            'totalPages' => $this->totalPages,
+            'startPage' => $this->startPage,
+            'endPage' => $this->endPage
+        );
+    }
+    
     
 }

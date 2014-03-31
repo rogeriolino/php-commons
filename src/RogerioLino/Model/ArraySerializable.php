@@ -10,6 +10,6 @@ interface ArraySerializable {
     /**
      * @return array
      */
-    public function toArray();
+    public function toArray($fullView = false);
     
 }
