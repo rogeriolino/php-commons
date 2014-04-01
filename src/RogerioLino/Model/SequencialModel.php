@@ -1,23 +1,20 @@
 <?php
 namespace RogerioLino\Model;
 
-use Doctrine\ORM\Mapping\MappedSuperclass;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * 
  * @author Rogério Lino <rogeriolino@gmail.com>
  * 
- * @MappedSuperclass
+ * @ORM\MappedSuperclass
  */
 abstract class SequencialModel extends Model {
     
     /**
-     * @Id
-     * @GeneratedValue(strategy="AUTO")
-     * @Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(name="id", type="integer", nullable=false)
      * @var integer
      */
     private $id;
