@@ -58,7 +58,8 @@ class EntityValidator implements Validator {
                     }
                     else if ($prop !== $id) {
                         if ($annot instanceof ORM\Column) {
-                            if ($annot->nullable === false && empty($value)) {
+                            $required = $annot->nullable === false;
+                            if ($required && empty($value)) {
                                 throw new \Exception(sprintf('Campo obrigatório: %s', $prop->getName()));
                             }
                             switch ($annot->type) {
@@ -69,7 +70,7 @@ class EntityValidator implements Validator {
                                 break;
                             case 'integer':
                                 $int = (int) $value;
-                                if (strcmp($int, $value) !== 0) {
+                                if ($required && strcmp($int, $value) !== 0) {
                                     throw new \Exception(sprintf('O valor do campo %s não é um inteiro válido: %s', $prop->getName(), $value));
                                 }
                                 break;
