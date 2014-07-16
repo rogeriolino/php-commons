@@ -132,4 +132,25 @@ abstract class CrudController extends SlimController {
     protected function postSave($model) {}
 
     
+    public function delete($id) {
+        try {
+            $model = $this->em()->find($this->entityName, $id);
+            if (!$model) {
+                throw new Exception('Registro não encontrado');
+            }
+            $this->preDelete($model);
+            $this->em()->remove($model);
+            $this->em()->flush();
+            $this->app()->flash('success', 'Registro removido com sucesso');
+            $redirectUrl = $this->app()->request()->getRootUri() . "/{$this->name}";
+        } catch (Exception $e) {
+            $this->app()->flash('error', $e->getMessage());
+            $redirectUrl = $_SERVER['HTTP_REFERER'];
+        }
+        $this->app()->redirect($redirectUrl);
+        exit();
+    }
+    
+    protected function preDelete($model) {}
+    
 }
