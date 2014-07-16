@@ -91,6 +91,9 @@ class Arrays {
             return $arr;
         }
         if (is_object($value)) {
+            if ($value instanceof \JsonSerializable) {
+                return $value->jsonSerialize();
+            }
             if ($value instanceof ArraySerializable) {
                 return $value->toArray();
             }
