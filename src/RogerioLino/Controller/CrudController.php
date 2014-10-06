@@ -83,7 +83,8 @@ abstract class CrudController extends SlimController {
                     if ($form->isValid()) {
                         $this->em()->beginTransaction();
                         $this->preSave($model);
-                        $redirectUrl = $_SERVER['HTTP_REFERER'];
+                        $redirectUrl = explode('?', $_SERVER['HTTP_REFERER']);
+                        $redirectUrl = $redirectUrl[0];
                         if ($model->getId() > 0) {
                             $this->em()->merge($model);
                             $message = 'Registro atualizado com sucesso';
